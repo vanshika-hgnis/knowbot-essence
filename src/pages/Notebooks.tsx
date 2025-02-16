@@ -1,4 +1,4 @@
-
+// src/pages/Notebooks.tsx
 import { useAuth } from "@/contexts/AuthContext";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
@@ -11,14 +11,10 @@ import CreateNotebookDialog from "@/components/notebooks/CreateNotebookDialog";
 import { useState } from "react";
 import { format } from "date-fns";
 
-interface Notebook {
-  id: string;
-  title: string;
-  description: string | null;
-  user_id: string;
-  created_at: string;
-  updated_at: string;
-}
+// (Optional) Import Notebook from your types file if you moved the definition
+// src/pages/Notebooks.tsx
+import type { Notebook } from "@/types/notebook";
+
 
 const Notebooks = () => {
   const { user } = useAuth();
@@ -29,10 +25,10 @@ const Notebooks = () => {
     queryKey: ['notebooks'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('notebooks_with_types')
+        .from('notebooks') // Now properly typed!
         .select('*')
         .order('updated_at', { ascending: false });
-
+  
       if (error) throw error;
       return data as Notebook[];
     },

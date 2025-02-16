@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
+import { Notebook } from "lucide-react";
 
 interface CreateNotebookDialogProps {
   open: boolean;
@@ -28,7 +29,7 @@ const CreateNotebookDialog = ({ open, onOpenChange }: CreateNotebookDialogProps)
       if (!user) throw new Error("User must be logged in");
       
       const { data, error } = await supabase
-        .from('notebooks_with_types')
+        .from("notebooks")
         .insert([
           {
             title,
