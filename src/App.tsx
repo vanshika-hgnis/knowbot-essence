@@ -8,6 +8,8 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import Notebooks from "./pages/Notebooks";
+import NotebookDetail from "./pages/NotebookDetail";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -18,6 +20,8 @@ const AppRoutes = () => (
       <Route path="/" element={<Index />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
+      <Route path="/notebooks" element={<Notebooks />} />
+      <Route path="/notebooks/:id" element={<NotebookDetail />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   </AuthProvider>
