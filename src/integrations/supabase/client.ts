@@ -13,8 +13,8 @@ if (!supabaseUrl || !supabaseKey) {
 
 export const supabase = createClient<Database>(supabaseUrl, supabaseKey);
 
-console.log('SUPABASE_URL:', import.meta.env.VITE_SUPABASE_URL);
-console.log('SUPABASE_KEY:', import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY);
+// console.log('SUPABASE_URL:', import.meta.env.VITE_SUPABASE_URL);
+// console.log('SUPABASE_KEY:', import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY);
 
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";

@@ -20,12 +20,12 @@ const Notebooks = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-
+  
   const { data: notebooks, isLoading } = useQuery({
     queryKey: ['notebooks'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('notebooks') // Now properly typed!
+        .from('notebooks') // Ensure this matches the table name in Supabase
         .select('*')
         .order('updated_at', { ascending: false });
   

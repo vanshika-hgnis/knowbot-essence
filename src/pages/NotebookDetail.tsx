@@ -25,7 +25,7 @@ const NotebookDetail = () => {
     queryKey: ['notebook', id],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('notebooks_with_types')
+        .from('notebooks')
         .select('*')
         .eq('id', id)
         .single();
