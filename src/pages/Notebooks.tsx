@@ -1,4 +1,3 @@
-// src/pages/Notebooks.tsx
 import { useAuth } from "@/contexts/AuthContext";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
@@ -8,24 +7,22 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import CreateNotebookDialog from "@/components/notebooks/CreateNotebookDialog";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { format } from "date-fns";
-
-// (Optional) Import Notebook from your types file if you moved the definition
-// src/pages/Notebooks.tsx
+import { useUsername } from '@/hooks/useUsername';
 import type { Notebook } from "@/types/notebook";
-
 
 const Notebooks = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  
-  const { data: notebooks, isLoading } = useQuery({
+  const { username, isLoading: isUsernameLoading } = useUsername();
+
+  const { data: notebooks, isLoading: isNotebooksLoading } = useQuery({
     queryKey: ['notebooks'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('notebooks') // Ensure this matches the table name in Supabase
+        .from('notebooks')
         .select('*')
         .order('updated_at', { ascending: false });
   
@@ -40,11 +37,19 @@ const Notebooks = () => {
     return null;
   }
 
+  const isLoading = isUsernameLoading || isNotebooksLoading;
+
   return (
     <Layout>
       <div className="container py-8">
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-bold">Your Notebooks</h1>
+          <h1 className="text-3xl font-bold">
+            {isUsernameLoading ? (
+              <span className="animate-pulse bg-muted rounded h-8 w-32 inline-block" />
+            ) : (
+              `${username?.firstName}'s Notebooks`
+            )}
+          </h1>
           <Button onClick={() => setIsCreateDialogOpen(true)}>
             <Plus className="mr-2" />
             New Notebook
