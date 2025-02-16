@@ -3,8 +3,11 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Brain } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Navbar = () => {
+  const { user, signOut } = useAuth();
+
   return (
     <nav className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur">
       <div className="container flex h-16 items-center">
@@ -13,12 +16,20 @@ const Navbar = () => {
           <span className="font-semibold">KnowledgeHub</span>
         </Link>
         <div className="ml-auto flex items-center space-x-4">
-          <Button variant="ghost" asChild>
-            <Link to="/login">Login</Link>
-          </Button>
-          <Button asChild>
-            <Link to="/signup">Sign Up</Link>
-          </Button>
+          {user ? (
+            <Button variant="outline" onClick={() => signOut()}>
+              Log out
+            </Button>
+          ) : (
+            <>
+              <Button variant="ghost" asChild>
+                <Link to="/login">Login</Link>
+              </Button>
+              <Button asChild>
+                <Link to="/signup">Sign Up</Link>
+              </Button>
+            </>
+          )}
         </div>
       </div>
     </nav>
