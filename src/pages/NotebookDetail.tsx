@@ -7,6 +7,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 
+interface Notebook {
+  id: string;
+  title: string;
+  description: string | null;
+  user_id: string;
+  created_at: string;
+  updated_at: string;
+}
+
 const NotebookDetail = () => {
   const { id } = useParams();
   const { user } = useAuth();
@@ -16,13 +25,13 @@ const NotebookDetail = () => {
     queryKey: ['notebook', id],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('notebooks')
+        .from('notebooks_with_types')
         .select('*')
         .eq('id', id)
         .single();
 
       if (error) throw error;
-      return data;
+      return data as Notebook;
     },
     enabled: !!user && !!id,
   });

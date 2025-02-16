@@ -15,6 +15,7 @@ interface Notebook {
   id: string;
   title: string;
   description: string | null;
+  user_id: string;
   created_at: string;
   updated_at: string;
 }
@@ -28,7 +29,7 @@ const Notebooks = () => {
     queryKey: ['notebooks'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('notebooks')
+        .from('notebooks_with_types')
         .select('*')
         .order('updated_at', { ascending: false });
 

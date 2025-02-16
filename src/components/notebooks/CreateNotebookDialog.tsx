@@ -8,6 +8,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface CreateNotebookDialogProps {
   open: boolean;
@@ -20,15 +21,19 @@ const CreateNotebookDialog = ({ open, onOpenChange }: CreateNotebookDialogProps)
   const { toast } = useToast();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { user } = useAuth();
 
   const { mutate: createNotebook, isPending } = useMutation({
     mutationFn: async () => {
+      if (!user) throw new Error("User must be logged in");
+      
       const { data, error } = await supabase
-        .from('notebooks')
+        .from('notebooks_with_types')
         .insert([
           {
             title,
             description,
+            user_id: user.id
           },
         ])
         .select()
