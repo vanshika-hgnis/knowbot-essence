@@ -1,13 +1,9 @@
-// 
-// components/PdfUploadSection.tsx
-
-
 import { useEffect, useState } from "react";
 import { Upload } from "lucide-react";
 import { getUserInfo } from "@/hooks/getUserInfo";
 import { supabase } from "@/integrations/supabase/client";
 
-import { LoadingScreen } from "@/components/LoadingScreen";
+
 
 interface PdfUploadSectionProps {
   notebookId?: string;
@@ -15,9 +11,9 @@ interface PdfUploadSectionProps {
 }
 
 export const PdfUploadSection = ({ notebookId, userId }: PdfUploadSectionProps) => {
+  
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
-  const [loadingMessage, setLoadingMessage] = useState<string>("");
 
   async function fileToBase64(file: File): Promise<string> {
     return new Promise((resolve, reject) => {
@@ -37,12 +33,11 @@ export const PdfUploadSection = ({ notebookId, userId }: PdfUploadSectionProps) 
     if (!file) return;
     setPdfFile(file);
     setIsUploading(true);
-    setLoadingMessage("Chunking  document...");
     try {
-      const { userId} = await getUserInfo();
+      const { userId, notebookId } = await getUserInfo();
 
       const pdfBase64 = await fileToBase64(file);
-      const response = await fetch("http://localhost:5000/ingest", {
+      const response = await fetch("api/ingest", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -63,7 +58,6 @@ export const PdfUploadSection = ({ notebookId, userId }: PdfUploadSectionProps) 
   };
   return (
     <div className="space-y-4">
-      {isUploading && <LoadingScreen message={loadingMessage} />}
       <h2 className="text-lg font-semibold">Upload PDF</h2>
       <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-muted-foreground rounded-lg cursor-pointer hover:bg-muted/50 transition-colors">
         <input
@@ -84,11 +78,27 @@ export const PdfUploadSection = ({ notebookId, userId }: PdfUploadSectionProps) 
       {pdfFile && (
         <p className="text-sm text-muted-foreground truncate">Selected: {pdfFile.name}</p>
       )}
-
+{/* 
+      <div className="mt-4">
+        <h3 className="text-md font-semibold">Uploaded Files</h3>
+        {uploadedFiles.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No files uploaded yet.</p>
+        ) : (
+          <ul className="list-disc pl-5">
+            {uploadedFiles.map((file, index) => (
+              <li key={index} className="flex items-center justify-between text-sm text-muted-foreground">
+                <span>{file.name}</span>
+                <button
+                  className="text-red-500 hover:underline"
+                  onClick={() => handleDelete(file.name)}
+                >
+                  Delete
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div> */}
     </div>
   );
 };
-
-
-
-

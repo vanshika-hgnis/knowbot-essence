@@ -79,7 +79,10 @@ const NotebookDetail = () => {
 
             {/* Right Column */}
             <div className="flex-1">
-            <ChatInterface  />
+            <ChatInterface  
+            userId= {user.id}
+            notebookId={notebook.id}
+            />
             </div>
           </div>
         ) : (

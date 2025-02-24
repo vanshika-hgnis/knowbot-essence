@@ -1,47 +1,64 @@
 // src/components/notebooks/ChatInterface.tsx
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { getUserInfo } from "@/hooks/getUserInfo";
 
 interface Message {
   text: string;
   sender: 'user' | 'bot';
   timestamp: Date;
 }
-
-export const ChatInterface = () => {
+interface ChatInterfaceProps {
+  notebookId?: string;
+  userId?: string;
+}
+export const ChatInterface = ({ notebookId, userId}:ChatInterfaceProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
-  const [inputText, setInputText] = useState('');
+  const [inputText, setInputText] = useState("");
 
   const handleSendMessage = async () => {
     if (!inputText.trim()) return;
+    const userMsg: Message = { text: inputText, sender: "user", timestamp: new Date() };
+    setMessages((prev) => [...prev, userMsg]);
+    const question = inputText;
+    setInputText("");
 
-    // Add user message
-    const userMessage: Message = {
-      text: inputText,
-      sender: 'user',
-      timestamp: new Date()
-    };
-    
-    setMessages(prev => [...prev, userMessage]);
-    setInputText('');
-
-    // Simulate bot response
-    const botResponse: Message = {
-      text: await generateBotResponse(inputText),
-      sender: 'bot',
-      timestamp: new Date()
-    };
-    
-    setMessages(prev => [...prev, botResponse]);
+    try {
+      const botText = await generateBotResponse(question);
+      const botMsg: Message = { text: botText, sender: "bot", timestamp: new Date() };
+      setMessages((prev) => [...prev, botMsg]);
+    } catch (err) {
+      console.error(err);
+      const errorMsg: Message = {
+        text: "Error retrieving answer",
+        sender: "bot",
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, errorMsg]);
+    }
   };
 
-  const generateBotResponse = async (message: string) => {
-    // TODO: Connect to your chatbot API
-    return "This is a mock response. Connect to your AI service.";
-  };
+  async function generateBotResponse(question: string): Promise<string> {
+    const { userId} = await getUserInfo();
+    const response = await fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        question,
+        chat_history: [],
+        user_id: userId,
+        // notebook_id: notebookId,
+      }),
+    });
+    if (!response.ok) throw new Error("Chat query failed");
+    const data = await response.json();
+    return data.answer;
+  }
+
+  
 
   return (
-    <div className="border rounded-lg p-6 h-[600px] flex flex-col">
+    <div className="border  border-black/20 rounded-lg p-6 h-[600px] flex flex-col">
       <div className="flex-1 overflow-y-auto mb-4 space-y-4">
         {messages.map((message, index) => (
           <div
@@ -73,8 +90,12 @@ export const ChatInterface = () => {
           onChange={(e) => setInputText(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
         />
-        <Button onClick={handleSendMessage}>Send</Button>
+        {/* <Button onClick={handleSendMessage}>Send</Button> */}
       </div>
     </div>
   );
 };
+
+
+
+
