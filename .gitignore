@@ -29,3 +29,5 @@ node_modules/
 .next/
 .swc/
 .*.env
+.env
+*.env.env
