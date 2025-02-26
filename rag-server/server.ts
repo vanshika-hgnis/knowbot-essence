@@ -21,43 +21,6 @@ const supabaseClient = createClient(supabaseUrl, supabaseKey);
 const Cohere_API_KEY = process.env.COHERE_API_KEY!;
 const HF_ACCESS_TOKEN = process.env.HUGGINGFACE_API_KEY!;
 
-// Function to get embeddings from Hugging Face
-
-
-// const generateEmbeddings = async (text: string, retries = 3, delay = 2000): Promise<number[] | null> => {
-//     console.log(HF_ACCESS_TOKEN)
-//     for (let i = 0; i < retries; i++) {
-//         try {
-//             const response = await fetch("https://router.huggingface.co/hf-inference/models/jinaai/jina-embeddings-v2-base-en", {
-//                 method: "POST",
-//                 headers: {
-//                     "Authorization": `Bearer ${HF_ACCESS_TOKEN}`,
-//                     "Content-Type": "application/json"
-//                 },
-//                 body: JSON.stringify({ inputs: text })
-//             });
-
-//             if (response.status === 503) {
-//                 console.warn(`Hugging Face API is temporarily unavailable. Retrying in ${delay}ms...`);
-//                 await new Promise(res => setTimeout(res, delay));
-//                 continue; // Retry request
-//             }
-
-//             if (!response.ok) {
-//                 throw new Error(`Embedding API failed: ${response.statusText}`);
-//             }
-
-//             const result = await response.json();
-//             return result[0]; // Extract the embedding vector
-//         } catch (error) {
-//             console.error(`Error generating embeddings (attempt ${i + 1}):`, error);
-//             await new Promise(res => setTimeout(res, delay)); // Wait before retrying
-//         }
-//     }
-
-//     console.error("Max retries reached. Hugging Face API unavailable.");
-//     return null;
-// };
 
 
 const generateEmbeddings = async (text: string, retries = 3, delay = 2000): Promise<number[] | null> => {
