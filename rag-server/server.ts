@@ -12,7 +12,7 @@ const app = express();
 app.use(cors());
 app.use(express.json({ limit: "50mb" }));
 
-const PORT = process.env.PORT || 5000;
+const PORT = 5000;
 
 // Initialize Supabase
 const supabaseUrl = process.env.SUPABASE_URL!;
@@ -23,8 +23,7 @@ const HF_ACCESS_TOKEN = process.env.HUGGINGFACE_API_KEY!;
 
 
 
-const generateEmbeddings = async (text: string, retries = 3, delay = 2000): Promise<number[] | null> => {
-    console.log(HF_ACCESS_TOKEN)
+export const generateEmbeddings = async (text: string, retries = 3, delay = 2000): Promise<number[] | null> => {
     for (let i = 0; i < retries; i++) {
         try {
             const response = await fetch("https://router.huggingface.co/hf-inference/models/mixedbread-ai/mxbai-embed-large-v1", {
@@ -81,7 +80,27 @@ const generateEmbeddings = async (text: string, retries = 3, delay = 2000): Prom
     return null;
 };
 
+app.post("/generate-embedding", async (req: express.Request, res: express.Response): Promise<void> => {
+    const { text } = req.body;
+    console.log('Received request:', req.body);
+    if (!text) {
+        console.log(res.status(400).json({ message: "Missing text input." }));
+    }
 
+    try {
+        console.log("Generating embedding for:", text);
+        const embedding = await generateEmbeddings(text);
+
+        if (!embedding) {
+            console.log(res.status(500).json({ message: "Failed to generate embedding." }));
+        }
+
+        res.status(200).json({ embedding });
+    } catch (error) {
+        console.error("Error generating embedding:", error);
+        res.status(500).json({ message: "Server error while generating embedding." });
+    }
+});
 
 
 
@@ -99,7 +118,8 @@ app.post("/ingest", async (req: express.Request, res: express.Response): Promise
     try {
         const pdfBuffer = Buffer.from(pdfBase64, "base64");
         const pdfData = await pdfParse(pdfBuffer);
-        const text = pdfData.text.trim();
+        const text = pdfData.text.replace(/\u0000/g, "").trim();
+
 
         if (!text) {
             res.status(400).json({ message: "No text extracted from PDF." });
@@ -123,6 +143,7 @@ app.post("/ingest", async (req: express.Request, res: express.Response): Promise
         let embeddingString;
         if (Array.isArray(vector)) {
             embeddingString = `[${vector.join(",")}]`;
+
         } else if (typeof vector === 'object') {
             // If vector is an object, convert it to string in the appropriate format
             embeddingString = JSON.stringify(vector);

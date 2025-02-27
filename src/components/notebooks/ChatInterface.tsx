@@ -39,22 +39,23 @@ export const ChatInterface = ({ notebookId, userId}:ChatInterfaceProps) => {
   };
 
   async function generateBotResponse(question: string): Promise<string> {
-    const { userId} = await getUserInfo();
-    const response = await fetch("/api/chat", {
+    const { userId } = await getUserInfo();
+    
+    const response = await fetch("http://localhost:5001/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        question,
-        chat_history: [],
+        query: question,
         user_id: userId,
-        // notebook_id: notebookId,
+        notebook_id: notebookId, // If needed
       }),
     });
+  
     if (!response.ok) throw new Error("Chat query failed");
     const data = await response.json();
-    return data.answer;
+    return data.response; // Ensure backend returns "response" not "answer"
   }
-
+  
   
 
   return (
