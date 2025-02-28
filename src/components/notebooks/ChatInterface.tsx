@@ -22,11 +22,19 @@ export const ChatInterface = ({ notebookId, userId}:ChatInterfaceProps) => {
     setMessages((prev) => [...prev, userMsg]);
     const question = inputText;
     setInputText("");
-
+    const loadingMsg: Message = {text:"Thinking....",sender:"bot", timestamp:new Date()};
+    setMessages((prev) => [...prev, loadingMsg]);
     try {
       const botText = await generateBotResponse(question);
-      const botMsg: Message = { text: botText, sender: "bot", timestamp: new Date() };
-      setMessages((prev) => [...prev, botMsg]);
+      
+      setMessages((prev) => prev.filter(msg => msg.text !== "Thinking...."));
+      // const formattedBotText = botText.replace(/\n{2,}/g, "\n").trim(); // Clean up excessive newlines
+      // const formattedBotText = botText.replace(/\n{2,}/g, "\n").replace(/\*\*/g, "").trim();
+      const formattedBotText = botText.replace(/\n{2,}/g, "\n").replace(/[*_~`#]/g, "").trim();
+
+
+const botMsg: Message = { text: formattedBotText, sender: "bot", timestamp: new Date() };
+setMessages((prev) => [...prev, botMsg]);
     } catch (err) {
       console.error(err);
       const errorMsg: Message = {
@@ -67,7 +75,7 @@ export const ChatInterface = ({ notebookId, userId}:ChatInterfaceProps) => {
             className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
           >
             <div
-              className={`max-w-[70%] p-3 rounded-lg ${
+              className={`max-w-[70%] p-3 rounded-lg  whitespace-pre-line break-words  ${
                 message.sender === 'user' 
                   ? 'bg-primary text-primary-foreground' 
                   : 'bg-muted'
@@ -86,12 +94,11 @@ export const ChatInterface = ({ notebookId, userId}:ChatInterfaceProps) => {
         <input
           type="text"
           placeholder="Ask about your documents..."
-          className="flex-1 p-7 border rounded-lg"
+          className="flex-1 p-3 border rounded-lg"
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
         />
-        {/* <Button onClick={handleSendMessage}>Send</Button> */}
       </div>
     </div>
   );

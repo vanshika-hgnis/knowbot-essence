@@ -32,64 +32,6 @@ const llm = new ChatMistralAI({
 const SERVER_URL = "http://localhost:5000"; // Ensure this matches your server.ts host and port
 
 
-// export const generateEmbeddings = async (text: string, retries = 3, delay = 2000): Promise<number[] | null> => {
-//     for (let i = 0; i < retries; i++) {
-//         try {
-//             const response = await fetch("https://router.huggingface.co/hf-inference/models/mixedbread-ai/mxbai-embed-large-v1", {
-//                 method: "POST",
-//                 headers: {
-//                     "Authorization": `Bearer ${HF_ACCESS_TOKEN}`,
-//                     "Content-Type": "application/json"
-//                 },
-//                 body: JSON.stringify({ inputs: text })
-//             });
-
-//             if (response.status === 503) {
-//                 console.warn(`Hugging Face API is temporarily unavailable. Retrying in ${delay}ms...`);
-//                 await new Promise(res => setTimeout(res, delay));
-//                 continue; // Retry request
-//             }
-
-//             if (!response.ok) {
-//                 throw new Error(`Embedding API failed: ${response.statusText}`);
-//             }
-
-//             const result = await response.json();
-
-//             // Debug the response format
-//             console.log("API Response type:", typeof result);
-//             console.log("API Response structure:", JSON.stringify(result).substring(0, 100) + "...");
-
-//             // Handle different response formats
-//             if (Array.isArray(result)) {
-//                 // If result is already an array of numbers, return it
-//                 if (typeof result[0] === 'number') {
-//                     return result;
-//                 }
-//                 // If result is an array containing an array of numbers
-//                 else if (Array.isArray(result[0])) {
-//                     return result[0];
-//                 }
-//             }
-
-//             // If result is an object with embeddings
-//             if (result && typeof result === 'object' && 'embeddings' in result) {
-//                 return result.embeddings;
-//             }
-
-//             // Return the result directly - modify this in your document insert logic
-//             return result;
-//         } catch (error) {
-//             console.error(`Error generating embeddings (attempt ${i + 1}):`, error);
-//             await new Promise(res => setTimeout(res, delay)); // Wait before retrying
-//         }
-//     }
-
-//     console.error("Max retries reached. Hugging Face API unavailable.");
-//     return null;
-// };
-
-
 
 
 /**
@@ -127,14 +69,29 @@ const generateChatResponse = async (query: string, context: string) => {
         ];
 
         const prompt = PromptTemplate.fromTemplate(
-            `Your our Friendy Teacher or Mentor to a  student with the professor level knowledge in this field ${context}: Reply and explain the followinf query ${query} in a way that a student can understand.\n`
+            `Your our Friendly Teacher or Mentor to a student with professor-level knowledge in this field.\n\nContext:\n${context}\n\nReply and explain the following query in a way that a student can understand:\n\n${query}\n`
         );
         const chain = prompt.pipe(llm);
         const response = await chain.invoke({
             output_language: "English",
             input: prompt,
         });
-        return response.content;
+        let contentStr = "";
+        if (typeof response.content === 'string') {
+            contentStr = response.content;
+        } else if (Array.isArray(response.content)) {
+            // Extract text from complex content array
+            contentStr = response.content
+                .map(item => {
+                    if (typeof item === 'string') return item;
+                    if (item.type === 'text') return item.text;
+                    return '';
+                })
+                .join('');
+        }
+        // console.log("API Response:", contentStr);
+        // return response.content;
+        return contentStr
     } catch (error) {
         console.error("Error generating chat response:", error);
         return "I'm sorry, I couldn't process your request.";
