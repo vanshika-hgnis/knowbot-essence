@@ -14,7 +14,19 @@
 npm run dev
 ```
 
-2. Run the APIs.
+2. Environment Configration
+
+Creating .env file.
+
+```bash
+SUPABASE_URL=
+SUPABASE_PRIVATE_KEY=
+NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET=notebook-files
+HUGGINGFACE_MODEL=
+MISTRAL_API_KEY=
+```
+
+3. Run the APIs.
 
 ```bash
 cd rag-server
