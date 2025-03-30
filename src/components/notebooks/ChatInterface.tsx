@@ -28,8 +28,6 @@ export const ChatInterface = ({ notebookId, userId}:ChatInterfaceProps) => {
       const botText = await generateBotResponse(question);
       
       setMessages((prev) => prev.filter(msg => msg.text !== "Thinking...."));
-      // const formattedBotText = botText.replace(/\n{2,}/g, "\n").trim(); // Clean up excessive newlines
-      // const formattedBotText = botText.replace(/\n{2,}/g, "\n").replace(/\*\*/g, "").trim();
       const formattedBotText = botText.replace(/\n{2,}/g, "\n").replace(/[*_~`#]/g, "").trim();
 
 
